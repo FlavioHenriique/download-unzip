@@ -16,7 +16,7 @@ public class main {
 
         try {
             Downloads downloads = new Downloads();
-            for (int k = 21; k <= 21; k ++){
+            for (int k = 22; k <= 30; k ++){
                 downloads.baixarDia("2018", "06", k);
                 }
 
