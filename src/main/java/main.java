@@ -13,11 +13,16 @@ public class main {
 
     public static void main(String[] args) {
 
+
         try {
             Downloads downloads = new Downloads();
-            downloads.baixarTodos("2018","05",1);
+            for (int k = 21; k <= 21; k ++){
+                downloads.baixarDia("2018", "06", k);
+                }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 }

@@ -10,49 +10,63 @@ public class Downloads {
 
     private URL url;
     private String link;
+    private File pasta;
 
     public Downloads() throws IOException {
 
         this.link = "http://www.portaltransparencia.gov.br/download-de-dados" +
                 "/despesas/";
-
     }
 
-    public  void baixarTodos(String ano, String mes, int dias) throws IOException {
+    public void baixarDia(String ano, String mes, int dia) {
 
-
-        for(int k =1; k <= dias; k ++){
-
-            String concatenar =  ano + mes + "0"+ k;
-            System.out.println(link + concatenar);
-            this.url = new URL(link + concatenar);
-
-            ReadableByteChannel chanel = Channels.newChannel(url.openStream());
-
-            String nome = "dados/"+ano+mes+ "0" + k+".zip";
-            System.out.println("nome: "+ nome);
-            FileOutputStream stream = new FileOutputStream(nome);
-            stream.getChannel().transferFrom(chanel, 0, Long.MAX_VALUE);
-
-            System.out.println("Download concluido");
-
-            extrairTodos(nome, "dados/"+concatenar);
+        pasta = new File("../dados/" + ano + mes);
+        if (!pasta.exists()) {
+            pasta.mkdirs();
         }
 
+        String concatenar = ano + mes;
+        concatenar += (dia < 10) ? "0" + dia : dia;
+
+        try {
+            this.url = new URL(link + concatenar);
+            ReadableByteChannel chanel = Channels.newChannel(url.openStream());
+
+            String nome = pasta.getPath() + "/" + concatenar + ".zip";
+            System.out.println("arquivo: " + nome);
+
+            FileOutputStream stream = new FileOutputStream(nome);
+            stream.getChannel().transferFrom(chanel, 0, Long.MAX_VALUE);
+            System.out.println("Download concluido");
+
+            extrair(nome, pasta.getPath() + "/" + concatenar);
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.getMessage();
+            this.baixarDia(ano, mes, dia + 1);
+        }
+
+
     }
 
-    public void extrairTodos(String nome, String pasta) throws IOException {
+    private void extrair(String nome, String pasta) throws IOException {
 
         byte[] bytes = new byte[1024];
-        File file = new File("dados/");
-        if(!file.exists()){
+        File file = new File(pasta);
+        if (!file.exists()) {
             file.mkdir();
         }
 
         ZipInputStream zip = new ZipInputStream(new FileInputStream(nome));
         ZipEntry entry = zip.getNextEntry();
 
-        while(entry != null){
+        // usando if para pegar apenas o primeiro arquivo (empenho), utiliza-se while caso queira todos
+        if (entry != null) {
+
             String filename = entry.getName();
             File arquivo = new File(pasta + File.separator + filename);
             new File(arquivo.getParent()).mkdirs();
@@ -60,8 +74,8 @@ public class Downloads {
             FileOutputStream out = new FileOutputStream(arquivo);
             int len;
 
-            while((len = zip.read(bytes)) > 0){
-                out.write(bytes,0,len);
+            while ((len = zip.read(bytes)) > 0) {
+                out.write(bytes, 0, len);
             }
             out.close();
             entry = zip.getNextEntry();
@@ -69,7 +83,7 @@ public class Downloads {
         zip.closeEntry();
         zip.close();
 
-        System.out.println("Extraído");
+        System.out.println("Extraído "+ nome);
 
         File arquivoExcluir = new File(nome);
         arquivoExcluir.delete();
