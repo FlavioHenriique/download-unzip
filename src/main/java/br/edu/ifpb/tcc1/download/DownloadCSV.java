@@ -1,3 +1,6 @@
+package br.edu.ifpb.tcc1.download;
+
+
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -6,16 +9,16 @@ import java.nio.channels.ReadableByteChannel;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public class Downloads {
+public class DownloadCSV {
 
     private URL url;
     private String link;
     private File pasta;
 
-    public Downloads() throws IOException {
+    public DownloadCSV() throws IOException {
 
-        this.link = "http://www.portaltransparencia.gov.br/download-de-dados" +
-                "/despesas/";
+        this.link = "http://www.portaltransparencia.gov.br/download-de-dados"
+                + "/despesas/";
     }
 
     public void baixarDia(String ano, String mes, int dia) {
@@ -39,21 +42,21 @@ public class Downloads {
             stream.getChannel().transferFrom(chanel, 0, Long.MAX_VALUE);
             System.out.println("Download concluido");
 
-            extrair(nome, pasta.getPath() + "/" + concatenar);
+            //extrair(nome, pasta.getPath() + "/" + concatenar);
+            extrairCSV(nome, pasta.getPath());
 
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
-            e.getMessage();
-            this.baixarDia(ano, mes, dia + 1);
+            System.out.println(e.getMessage());
+            
         }
-
 
     }
 
-    private void extrair(String nome, String pasta) throws IOException {
+    private void extrairCSV(String nome, String pasta) throws IOException {
 
         byte[] bytes = new byte[1024];
         File file = new File(pasta);
@@ -64,13 +67,16 @@ public class Downloads {
         ZipInputStream zip = new ZipInputStream(new FileInputStream(nome));
         ZipEntry entry = zip.getNextEntry();
 
-        // usando if para pegar apenas o primeiro arquivo (empenho), utiliza-se while caso queira todos
+        // usando if para pegar apenas o primeiro arquivo (empenho), 
+        //utiliza-se while caso queira todos
         if (entry != null) {
 
             String filename = entry.getName();
-            File arquivo = new File(pasta + File.separator + filename);
-            new File(arquivo.getParent()).mkdirs();
 
+            //File arquivo = new File(pasta + File.separator + filename);
+            File arquivo = new File(pasta + File.separator + filename);
+
+            //new File(arquivo.getParent()).mkdirs();
             FileOutputStream out = new FileOutputStream(arquivo);
             int len;
 
@@ -83,7 +89,7 @@ public class Downloads {
         zip.closeEntry();
         zip.close();
 
-        System.out.println("Extraído "+ nome);
+        System.out.println("Extraído " + nome);
 
         File arquivoExcluir = new File(nome);
         arquivoExcluir.delete();
